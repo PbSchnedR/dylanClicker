@@ -1,9 +1,24 @@
 import { useState } from 'react'
 import nalyD from './assets/nalyD.png'
+import dinoDylan from './assets/dino-dylan-removebg-preview.png'
+import dylanDepressif from './assets/dylan_depressif-removebg-preview.png'
+import garconEcureuil from './assets/20250619_0855_Garçon_avec_Écureuil_remix_01jy3fe1h0e9jade1d8gft44yd-removebg-preview.png'
+import dylan from './assets/Dylan-removebg-preview.png'
 import parrotSound from './assets/parrot.mp3'
 
 function App() {
   const [isAnimating, setIsAnimating] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [slideDirection, setSlideDirection] = useState('')
+
+  // Array de toutes les images
+  const images = [
+    { src: nalyD, alt: 'NalyD' },
+    { src: dinoDylan, alt: 'Dino Dylan' },
+    { src: dylanDepressif, alt: 'Dylan Dépressif' },
+    { src: garconEcureuil, alt: 'Garçon avec Écureuil' },
+    { src: dylan, alt: 'Dylan' }
+  ]
 
   const handleClick = () => {
     // Animation de rebond
@@ -15,6 +30,22 @@ function App() {
     
     // Réinitialiser l'animation après 300ms
     setTimeout(() => setIsAnimating(false), 300)
+  }
+
+  const nextImage = () => {
+    setSlideDirection('slide-left')
+    setTimeout(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length)
+      setSlideDirection('')
+    }, 150)
+  }
+
+  const prevImage = () => {
+    setSlideDirection('slide-right')
+    setTimeout(() => {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+      setSlideDirection('')
+    }, 150)
   }
 
   return (
@@ -52,18 +83,55 @@ function App() {
           Dylan Clicker
         </h1>
 
-        {/* Image cliquable */}
-        <div 
-          className={`w-3/4 sm:w-1/2 h-auto max-w-md cursor-pointer transition-transform duration-300 mb-8 sm:mb-12 ${
-            isAnimating ? 'scale-110 animate-bounce' : 'hover:scale-105'
-          }`}
-          onClick={handleClick}
-        >
-          <img 
-            src={nalyD} 
-            alt="NalyD" 
-            className="w-full h-[40vh] sm:h-[50vh] object-contain rounded-full shadow-2xl"
-          />
+        {/* Conteneur du carrousel */}
+        <div className="relative w-3/4 sm:w-1/2 h-auto max-w-md mb-8 sm:mb-12">
+          {/* Flèche gauche */}
+          <button 
+            onClick={prevImage}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12 sm:-translate-x-16 z-20 bg-white/20 hover:bg-white/30 rounded-full p-2 sm:p-3 transition-all duration-300 backdrop-blur-sm"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Image cliquable */}
+          <div 
+            className={`cursor-pointer transition-all duration-300 ${
+              isAnimating ? 'scale-110 animate-bounce' : 'hover:scale-105'
+            } ${slideDirection === 'slide-left' ? 'transform -translate-x-full opacity-0' : ''} ${
+              slideDirection === 'slide-right' ? 'transform translate-x-full opacity-0' : ''
+            }`}
+            onClick={handleClick}
+          >
+            <img 
+              src={images[currentImageIndex].src} 
+              alt={images[currentImageIndex].alt} 
+              className="w-full h-[40vh] sm:h-[50vh] object-contain rounded-full shadow-2xl"
+            />
+          </div>
+
+          {/* Flèche droite */}
+          <button 
+            onClick={nextImage}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-12 sm:translate-x-16 z-20 bg-white/20 hover:bg-white/30 rounded-full p-2 sm:p-3 transition-all duration-300 backdrop-blur-sm"
+          >
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Indicateurs de position */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {images.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Instructions */}
@@ -71,6 +139,24 @@ function App() {
           Jouez avec Dylan pour vous amuser ! 🎮
         </p>
       </div>
+
+      {/* Styles CSS pour les animations de slide */}
+      <style jsx>{`
+        @keyframes slideLeft {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(-100%); opacity: 0; }
+        }
+        @keyframes slideRight {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+        }
+        .slide-left {
+          animation: slideLeft 0.15s ease-in-out;
+        }
+        .slide-right {
+          animation: slideRight 0.15s ease-in-out;
+        }
+      `}</style>
     </div>
   )
 }
